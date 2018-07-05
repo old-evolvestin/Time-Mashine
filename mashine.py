@@ -196,16 +196,19 @@ def repeat_all_messages(message):
                                 try:
                                     g_token(1, g_names[g_ids.index(str(message.from_user.id))])
                                     sheet1.insert_row(row, g.index(i) + 1)
+                                    g.append(g.index(i), row[0])
                                     marker = 1
                                 except:
                                     try:
                                         g_token(2, g_names[g_ids.index(str(message.from_user.id))])
                                         sheet2.insert_row(row, g.index(i) + 1)
+                                        g.append(g.index(i), row[0])
                                         marker = 1
                                     except:
                                         try:
                                             g_token(3, g_names[g_ids.index(str(message.from_user.id))])
                                             sheet3.insert_row(row, g.index(i) + 1)
+                                            g.append(g.index(i), row[0])
                                             marker = 1
                                         except:
                                             text = 'Не удалось записать время, ' \
@@ -222,16 +225,19 @@ def repeat_all_messages(message):
                                 try:
                                     g_token(1, g_names[g_ids.index(str(message.from_user.id))])
                                     sheet1.insert_row(row, g.index(i) + 1)
+                                    g.append(g.index(i), row[0])
                                     marker = 1
                                 except:
                                     try:
                                         g_token(2, g_names[g_ids.index(str(message.from_user.id))])
                                         sheet2.insert_row(row, g.index(i) + 1)
+                                        g.append(g.index(i), row[0])
                                         marker = 1
                                     except:
                                         try:
                                             g_token(3, g_names[g_ids.index(str(message.from_user.id))])
                                             sheet3.insert_row(row, g.index(i) + 1)
+                                            g.append(g.index(i), row[0])
                                             marker = 1
                                         except:
                                             text = 'Не удалось записать время, ' \
