@@ -1,4 +1,4 @@
-﻿# -*- coding: utf-8 -*-
+# -*- coding: utf-8 -*-
 
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
@@ -111,8 +111,11 @@ def handle_id_command(message):
 @bot.message_handler(commands=['update'])
 def handle_start_command(message):
     global g_names
+    global g_ids
     if message.chat.id == idMe or message.chat.id == idAdmin1 or message.chat.id == idAdmin2:
-        g_names = sheet1.row_values(1)
+        g_token(1, 'main')
+        g_names = sheet1.col_values(1)
+        g_ids = sheet1.col_values(2)
         bot.send_message(message.chat.id, '✅Исполнено')
 
 
