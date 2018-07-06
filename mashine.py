@@ -66,7 +66,7 @@ for j2 in t:
     g_token(2, j2)
     google = sheet2.col_values(1)
     main.append(google)
-bot.send_message(idChatDevelopment, '🤤 Запуск')
+bot.send_message(idChatDevelopment, '🤤')
 
 
 def rawtime(stamp):
@@ -108,7 +108,10 @@ def handle_time_command(message):
     text = 'Время: ' + str(time[4]) + ':' + str(time[5]) + ':' + str(time[6]) + \
         ' <code>(' + str(time[0]) + ' ' + str(time[1] + '.' + str(time[2]) + '.' + \
         str(time[3])) + ', GMT+3)</code>'
-    bot.send_message(message.chat.id, text, parse_mode='HTML')
+    try:
+        bot.send_message(message.chat.id, text, parse_mode='HTML')
+    except:
+        tempor = 0
 
 
 @bot.message_handler(commands=['id'])
@@ -116,13 +119,19 @@ def handle_id_command(message):
     text = 'Твой ID: <code>' + str(message.from_user.id) + '</code>\n'
     if message.chat.id < 0:
         text = text + 'Group ID: <code>' + str(message.chat.id) + '</code>'
-    bot.send_message(message.chat.id, text, parse_mode='HTML')
+    try:
+        bot.send_message(message.chat.id, text, parse_mode='HTML')
+    except:
+        tempor = 0
 
 
 @bot.message_handler(commands=['start'])
 def handle_start_command(message):
     if message.chat.id > 0:
-        bot.send_message(message.chat.id, 'Привет 😛')
+        try:
+            bot.send_message(message.chat.id, 'Привет 😛')
+        except:
+            tempor = 0
 
 
 @bot.message_handler(content_types=["new_chat_members"])
@@ -167,10 +176,23 @@ def repeat_all_messages(message):
                         if row in main[g_ids.index(str(message.from_user.id)) - 1]:
                             text = '😒 Повторяемся значит? Я всё помню.'
                             if message.chat.id < 0:
-                                bot.send_message(message.from_user.id, text, parse_mode='HTML')
+                                try:
+                                    bot.send_message(message.from_user.id, text, parse_mode='HTML')
+                                except:
+                                    try:
+                                        bot.send_message(message.chat.id, text, parse_mode='HTML')
+                                    except:
+                                        tempor = 0
                             else:
-                                bot.send_message(message.from_user.id, text,
+                                try:
+                                    bot.send_message(message.from_user.id, text,
                                                  reply_to_message_id=message.message_id, parse_mode='HTML')
+                                except:
+                                    try:
+                                        bot.send_message(message.from_user.id, text, parse_mode='HTML')
+                                    except:
+                                        tempor = 0
+
                         else:
                             togoogle.append(str(g_names[g_ids.index(str(message.from_user.id))]) + '|' + str(row))
                             times = rawtime(int(message.forward_date) + 57600)
@@ -180,11 +202,14 @@ def repeat_all_messages(message):
                                        ' ' + str(times[4]) + ':' + str(times[5]) + ':' + str(times[6]) + '</i>'
                             else:
                                 text = '🤤 <b>Принято</b>'
-                            bot.send_message(message.from_user.id, text, parse_mode='HTML')
+                            try:
+                                bot.send_message(message.from_user.id, text, parse_mode='HTML')
+                            except:
+                                tempor = 0
                 else:
                     try:
-                        bot.send_message(message.from_user.id, 'Тебя нет в моей базе, напиши кому-нибудь, '
-                                                               'что бы тебя добавили 🤤')
+                        text = 'Тебя нет в моей базе, напиши кому-нибудь, чтобы тебя добавили 🤤'
+                        bot.send_message(message.chat.id, text, reply_to_message_id=message.message_id)
                     except:
                         temp = 0
 
