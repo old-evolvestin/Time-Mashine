@@ -66,7 +66,7 @@ for j2 in t:
     g_token(2, j2)
     google = sheet2.col_values(1)
     main.append(google)
-bot.send_message(idChatDevelopment, '🤤')
+bot.send_message(idChatDevelopment, '🤤 Запуск')
 
 
 def rawtime(stamp):
