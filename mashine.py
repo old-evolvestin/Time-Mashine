@@ -16,9 +16,13 @@ import random
 
 
 # ======================================================================================================================
+scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
 tkn = '617835554:AAHTqC39hgIGOSvaGEqrr8wDCGArB5EZwpA'
 bot = telebot.TeleBot(tkn)
 
+main = []
+togoogle = []
+count = 0
 idMe = 396978030
 idAdmin1 = 396978030
 idAdmin2 = 396978030
@@ -33,7 +37,6 @@ def g_token(key, list):
     global sheet2
     global sheet3
     global sheet4
-    scope = ['https://spreadsheets.google.com/feeds', 'https://www.googleapis.com/auth/drive']
     if key == 1:
         creds1 = ServiceAccountCredentials.from_json_keyfile_name('person1.json', scope)
         client1 = gspread.authorize(creds1)
@@ -52,9 +55,17 @@ def g_token(key, list):
         sheet4 = client4.open('Time-mashine').worksheet(list)
 
 
-g_token(1, 'main')
-g_names = sheet1.col_values(1)
-g_ids = sheet1.col_values(2)
+g_token(2, 'main')
+g_names = sheet2.col_values(1)
+g_ids = sheet2.col_values(2)
+t = []
+for j1 in g_names:
+    if g_names.index(j1) > 0:
+        t.append(j1)
+for j2 in t:
+    g_token(2, j2)
+    google = sheet2.col_values(1)
+    main.append(google)
 bot.send_message(idMe, '🤤')
 
 
@@ -108,17 +119,6 @@ def handle_id_command(message):
     bot.send_message(message.chat.id, text, parse_mode='HTML')
 
 
-@bot.message_handler(commands=['update'])
-def handle_start_command(message):
-    global g_names
-    global g_ids
-    if message.chat.id == idMe or message.chat.id == idAdmin1 or message.chat.id == idAdmin2:
-        g_token(1, 'main')
-        g_names = sheet1.col_values(1)
-        g_ids = sheet1.col_values(2)
-        bot.send_message(message.chat.id, '✅Исполнено')
-
-
 @bot.message_handler(commands=['start'])
 def handle_start_command(message):
     if message.chat.id > 0:
@@ -153,129 +153,108 @@ def get_new_member(message):
 
 @bot.message_handler(func=lambda message: message.text)
 def repeat_all_messages(message):
+    global check
+    global togoogle
     if message.forward_date is not None:
         if str(message.forward_from.username) == NBOT:
             search = re.search('.*Он пытается.*', message.text)
             if search:
                 if str(message.from_user.id) in g_ids:
                     time = rawtime(message.forward_date)
-                    row = [str(time[1]) + '.' + str(time[2]) + '.' + str(time[3]) + ' ' + \
-                           str(time[4]) + ':' + str(time[5]) + ':' + str(time[6]) + '#' + str(message.forward_date)]
-                    try:
-                        g_token(1, g_names[g_ids.index(str(message.from_user.id))])
-                        g = sheet1.col_values(1)
-                    except:
-                        try:
-                            g_token(2, g_names[g_ids.index(str(message.from_user.id))])
-                            g = sheet2.col_values(1)
-                        except:
-                            try:
-                                g_token(3, g_names[g_ids.index(str(message.from_user.id))])
-                                g = sheet3.col_values(1)
-                            except:
-                                g = 0
-                    if not g:
-                        g_token(4, g_names[g_ids.index(str(message.from_user.id))])
-                        sheet4.insert_row(['начало'])
-                        g.append('0')
-                    if g != 0:
-                        marker = 2
-                        for i in g:
-                            splited = i.split('#')
-                            splited.append(1)
-                            splited[1] = int(splited[1])
-                            if message.forward_date == splited[1]:
-                                text = '😒 Повторяемся значит? Я всё помню.'
-                                if message.chat.id < 0:
-                                    bot.send_message(message.from_user.id, text, parse_mode='HTML')
-                                else:
-                                    bot.send_message(message.from_user.id, text,
-                                                     reply_to_message_id=message.message_id, parse_mode='HTML')
-                                break
-                            elif len(g) == 0 or g.index(i) == (len(g) - 1):
-                                try:
-                                    g_token(1, g_names[g_ids.index(str(message.from_user.id))])
-                                    sheet1.insert_row(row, g.index(i) + 1)
-                                    g.append(g.index(i), row[0])
-                                    marker = 1
-                                except:
-                                    try:
-                                        g_token(2, g_names[g_ids.index(str(message.from_user.id))])
-                                        sheet2.insert_row(row, g.index(i) + 1)
-                                        g.append(g.index(i), row[0])
-                                        marker = 1
-                                    except:
-                                        try:
-                                            g_token(3, g_names[g_ids.index(str(message.from_user.id))])
-                                            sheet3.insert_row(row, g.index(i) + 1)
-                                            g.append(g.index(i), row[0])
-                                            marker = 1
-                                        except:
-                                            text = 'Не удалось записать время, ' \
-                                                   'попробуй отправить чуть позже и <b>НЕ ТАКОЙ ЕБАНОЙ ПАЧКОЙ</b>'
-                                            if message.chat.id < 0:
-                                                bot.send_message(message.from_user.id, text, parse_mode='HTML')
-                                            else:
-                                                bot.send_message(message.from_user.id, text,
-                                                                 reply_to_message_id=message.message_id,
-                                                                 parse_mode='HTML')
-                                            marker = 0
-                                break
-                            elif message.forward_date > splited[1]:
-                                try:
-                                    g_token(1, g_names[g_ids.index(str(message.from_user.id))])
-                                    sheet1.insert_row(row, g.index(i) + 1)
-                                    g.append(g.index(i), row[0])
-                                    marker = 1
-                                except:
-                                    try:
-                                        g_token(2, g_names[g_ids.index(str(message.from_user.id))])
-                                        sheet2.insert_row(row, g.index(i) + 1)
-                                        g.append(g.index(i), row[0])
-                                        marker = 1
-                                    except:
-                                        try:
-                                            g_token(3, g_names[g_ids.index(str(message.from_user.id))])
-                                            sheet3.insert_row(row, g.index(i) + 1)
-                                            g.append(g.index(i), row[0])
-                                            marker = 1
-                                        except:
-                                            text = 'Не удалось записать время, ' \
-                                                   'попробуй отправить чуть позже и <b>НЕ ТАКОЙ ЕБАНОЙ ПАЧКОЙ</b>'
-                                            if message.chat.id < 0:
-                                                bot.send_message(message.from_user.id, text, parse_mode='HTML')
-                                            else:
-                                                bot.send_message(message.from_user.id, text,
-                                                                 reply_to_message_id=message.message_id,
-                                                                 parse_mode='HTML')
-                                            marker = 0
-                                break
-                        if marker == 1:
-                            time = rawtime(int(datetime.now().timestamp()) + 57600)
-                            good = str(time[1]) + '.' + str(time[2]) + '.' + str(time[3]) + ' ' + \
-                                str(time[4]) + ':' + str(time[5]) + ':' + str(time[6])
-                            now = 'По моим подсчетам, следующий твой корован будет, примерно <i>' + good + '</i>'
-                            if (int(datetime.now().timestamp()) - message.forward_date) < (24 * 60 * 60):
-                                very = '🤤 <b>Принято</b>\n' + now
+                    row = str(time[1]) + '.' + str(time[2]) + '.' + str(time[3]) + ' ' + \
+                        str(time[4]) + ':' + str(time[5]) + ':' + str(time[6]) + '#' + str(message.forward_date)
+                    if main:
+                        if row in main[g_ids.index(str(message.from_user.id)) - 1]:
+                            text = '😒 Повторяемся значит? Я всё помню.'
+                            if message.chat.id < 0:
+                                bot.send_message(message.from_user.id, text, parse_mode='HTML')
                             else:
-                                very = '🤤 <b>Принято</b>'
-                            bot.send_message(message.from_user.id, very, parse_mode='HTML')
-
-                    else:
-                        text = 'Не удалось записать время, ' \
-                               'попробуй отправить чуть позже и <b>НЕ ТАКОЙ ЕБАНОЙ ПАЧКОЙ</b>'
-                        if message.chat.id < 0:
-                            bot.send_message(message.from_user.id, text, parse_mode='HTML')
+                                bot.send_message(message.from_user.id, text,
+                                                 reply_to_message_id=message.message_id, parse_mode='HTML')
                         else:
-                            bot.send_message(message.from_user.id, text,
-                                             reply_to_message_id=message.message_id, parse_mode='HTML')
-
+                            togoogle.append(str(g_names[g_ids.index(str(message.from_user.id))]) + '|' + str(row))
+                            times = rawtime(int(message.forward_date) + 57600)
+                            if (int(datetime.now().timestamp()) - message.forward_date) < (24 * 60 * 60):
+                                text = '🤤 <b>Принято</b>\nПо моим подсчетам, следующий твой корован будет, ' \
+                                       'примерно <i>' + str(times[1]) + '.' + str(times[2]) + '.' + str(times[3]) + \
+                                       ' ' + str(times[4]) + ':' + str(times[5]) + ':' + str(times[6]) + '</i>'
+                            else:
+                                text = '🤤 <b>Принято</b>'
+                            bot.send_message(message.from_user.id, text, parse_mode='HTML')
                 else:
                     try:
                         bot.send_message(message.from_user.id, 'Тебя нет в моей базе, напиши кому-нибудь, '
                                                                'что бы тебя добавили 🤤')
                     except:
                         temp = 0
+
+
+def updater():
+    while True:
+        try:
+            global main
+            global g_names
+            global g_ids
+            global count
+            global togoogle
+            sleep(count)
+            count = 3
+            temp_google = []
+            if togoogle:
+                temp_google = togoogle
+                togoogle = []
+            g_token(4, 'main')
+            g_names = sheet4.col_values(1)
+            g_ids = sheet4.col_values(2)
+            temp_array = []
+            for e in g_names:
+                if g_names.index(e) > 0:
+                    temp_array.append(e)
+            if len(temp_array) != len(main):
+                main = []
+                for i in temp_array:
+                    try:
+                        g_token(4, i)
+                    except:
+                        creds4 = ServiceAccountCredentials.from_json_keyfile_name('person4.json', scope)
+                        client4 = gspread.authorize(creds4)
+                        spreadsheet = client4.open('Time-mashine')
+                        spreadsheet.add_worksheet(title=i, rows='1000', cols='50')
+                        g_token(4, i)
+                    google = sheet4.col_values(1)
+                    main.append(google)
+                    count = count + 1
+            if temp_google:
+                for m in temp_google:
+                    splited1 = m.split('|')
+                    splited2 = splited1[1].split('#')
+                    check = 1
+                    if main[g_names.index(splited1[0]) - 1]:
+                        last = main[g_names.index(splited1[0]) - 1][len(main[g_names.index(splited1[0]) - 1]) - 1].split('#')
+                        if int(splited2[1]) < int(last[1]):
+                            g_token(1, splited1[0])
+                            sheet1.insert_row([splited1[1]], len(main[g_names.index(splited1[0]) - 1]) + check)
+                            count = count + 1
+                            main[g_names.index(splited1[0]) - 1].insert(len(main[g_names.index(splited1[0]) - 1]), splited1[1])
+                        else:
+                            for z in main[g_names.index(splited1[0]) - 1]:
+                                splited3 = z.split('#')
+                                if int(splited2[1]) > int(splited3[1]):
+                                    g_token(1, splited1[0])
+                                    sheet1.insert_row([splited1[1]], main[g_names.index(splited1[0]) - 1].index(z) + check)
+                                    check = check + 1
+                                    count = count + 1
+                                    main[g_names.index(
+                                        splited1[0]) - 1].insert(main[g_names.index(splited1[0]) - 1].index(z), splited1[1])
+                                    break
+                    else:
+                        g_token(1, splited1[0])
+                        sheet1.insert_row([splited1[1]], check)
+                        count = count + 1
+                        main[g_names.index(splited1[0]) - 1].insert(0, splited1[1])
+
+        except Exception as e:
+            sleep(0.9)
 
 
 def telepol():
@@ -288,4 +267,5 @@ def telepol():
 
 
 if __name__ == '__main__':
+    _thread.start_new_thread(updater, ())
     telepol()
