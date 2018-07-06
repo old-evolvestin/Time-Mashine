@@ -130,8 +130,8 @@ def handle_start_command(message):
     if message.from_user.username:
         username = str(message.from_user.username)
         text = ''
-        if username not in g_names:
-            row = ['@' + str(username), message.from_user.username]
+        if str(message.from_user.id) not in g_ids:
+            row = ['@' + str(username), message.from_user.id]
             g_token(3, 'main')
             sheet3.insert_row(row, 2)
             text = ' [Добавлен в базу]'
