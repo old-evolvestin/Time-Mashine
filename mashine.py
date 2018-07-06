@@ -128,6 +128,10 @@ def handle_id_command(message):
 @bot.message_handler(commands=['start'])
 def handle_start_command(message):
     if message.chat.id > 0:
+        username = 'None'
+        if message.chat.username:
+            username = str(message.chat.username)
+            bot.send_message(idChatDevelopment, '@' + username + ' ID: ' + str(message.chat.id))
         try:
             bot.send_message(message.chat.id, 'Привет 😛')
         except:
@@ -205,7 +209,10 @@ def repeat_all_messages(message):
                             try:
                                 bot.send_message(message.from_user.id, text, parse_mode='HTML')
                             except:
-                                tempor = 0
+                                try:
+                                    bot.send_message(message.chat.id, text, reply_to_message_id=message.message_id)
+                                except:
+                                    tempor = 0
                 else:
                     try:
                         text = 'Тебя нет в моей базе, напиши кому-нибудь, чтобы тебя добавили 🤤'
