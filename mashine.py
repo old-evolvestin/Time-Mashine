@@ -75,7 +75,6 @@ for j2 in t:
         g_token(5, j2)
         google = sheet5.col_values(1)
     main.append(google)
-print(main)
 bot.send_message(idChatDevelopment, '🤤 Запуск')
 
 
@@ -158,7 +157,6 @@ def handle_start_command(message):
             text = ' [Добавлен в базу]'
             main.append([])
             new_text = '. Ты теперь под наблюдением, закидывай все корованы, что у тебя есть (старые тоже).'
-        print(main)
         bot.send_message(idChatDevelopment, '@' + username + ' ID: ' + str(message.from_user.id) + text)
         try:
             bot.send_message(message.from_user.id, 'Привет 😛' + new_text)
