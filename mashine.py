@@ -148,15 +148,19 @@ def handle_start_command(message):
             except:
                 tempor = 0
             row = ['@' + str(username), message.from_user.id]
-            g_token(1, 'main')
-            sheet1.insert_row(row, len(main) + 2)
-            creds1 = ServiceAccountCredentials.from_json_keyfile_name('person1.json', scope)
-            client1 = gspread.authorize(creds1)
-            spreadsheet = client1.open('Time-mashine')
-            spreadsheet.add_worksheet(title=row[0], rows='1', cols='2')
-            text = ' [Добавлен в базу]'
-            main.append([])
-            new_text = '. Ты теперь под наблюдением, закидывай все корованы, что у тебя есть (старые тоже).'
+            try:
+                g_token(5, 'main')
+                sheet5.insert_row(row, len(main) + 2)
+                creds5 = ServiceAccountCredentials.from_json_keyfile_name('person1.json', scope)
+                client5 = gspread.authorize(creds5)
+                spreadsheet = client5.open('Time-mashine')
+                spreadsheet.add_worksheet(title=row[0], rows='1', cols='2')
+                main.append([])
+                new_text = '. Ты теперь под наблюдением, закидывай все корованы, что у тебя есть (старые тоже).'
+                text = ' [Добавлен в базу]'
+            except:
+                new_text = '. Что-то пошло не так, напиши @evolvestin'
+                text = ' [Не смог добавить]'
         bot.send_message(idChatDevelopment, '@' + username + ' ID: ' + str(message.from_user.id) + text)
         try:
             bot.send_message(message.from_user.id, 'Привет 😛' + new_text)
