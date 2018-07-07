@@ -200,7 +200,7 @@ def get_new_member(message):
 def repeat_all_messages(message):
     global check
     global togoogle
-    if message.forward_date is not None:
+    if message.forward_date is not None and message.forward_from:
         if str(message.forward_from.username) == NBOT:
             search = re.search('.*Он пытается.*', message.text)
             if search:
