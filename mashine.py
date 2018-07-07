@@ -37,6 +37,7 @@ def g_token(key, list):
     global sheet2
     global sheet3
     global sheet4
+    global sheet5
     if key == 1:
         creds1 = ServiceAccountCredentials.from_json_keyfile_name('person1.json', scope)
         client1 = gspread.authorize(creds1)
@@ -53,19 +54,28 @@ def g_token(key, list):
         creds4 = ServiceAccountCredentials.from_json_keyfile_name('person4.json', scope)
         client4 = gspread.authorize(creds4)
         sheet4 = client4.open('Time-mashine').worksheet(list)
+    elif key == 5:
+        creds5 = ServiceAccountCredentials.from_json_keyfile_name('person5.json', scope)
+        client5 = gspread.authorize(creds5)
+        sheet5 = client5.open('Time-mashine').worksheet(list)
 
 
-g_token(2, 'main')
-g_names = sheet2.col_values(1)
-g_ids = sheet2.col_values(2)
+g_token(1, 'main')
+g_names = sheet1.col_values(1)
+g_ids = sheet1.col_values(2)
 t = []
 for j1 in g_names:
     if g_names.index(j1) > 0:
         t.append(j1)
 for j2 in t:
-    g_token(2, j2)
-    google = sheet2.col_values(1)
+    try:
+        g_token(1, j2)
+        google = sheet1.col_values(1)
+    except:
+        g_token(5, j2)
+        google = sheet5.col_values(1)
     main.append(google)
+print(main)
 bot.send_message(idChatDevelopment, '🤤 Запуск')
 
 
@@ -127,17 +137,31 @@ def handle_id_command(message):
 
 @bot.message_handler(commands=['start'])
 def handle_start_command(message):
+    global main
     if message.from_user.username:
         username = str(message.from_user.username)
         text = ''
+        new_text = ''
         if str(message.from_user.id) not in g_ids:
+            hi = '<i>Сонно смотрит на бумаги..</i> Тебя нет в моих списках, подожди немного.'
+            try:
+                bot.send_message(message.from_user.id, hi, parse_mode='HTML')
+            except:
+                tempor = 0
             row = ['@' + str(username), message.from_user.id]
-            g_token(3, 'main')
-            sheet3.insert_row(row, 2)
+            g_token(1, 'main')
+            sheet1.insert_row(row, len(main) + 2)
+            creds1 = ServiceAccountCredentials.from_json_keyfile_name('person1.json', scope)
+            client1 = gspread.authorize(creds1)
+            spreadsheet = client1.open('Time-mashine')
+            spreadsheet.add_worksheet(title=row[0], rows='1', cols='2')
             text = ' [Добавлен в базу]'
+            main.append([])
+            new_text = '. Ты теперь под наблюдением, закидывай все корованы, что у тебя есть (старые тоже).'
+        print(main)
         bot.send_message(idChatDevelopment, '@' + username + ' ID: ' + str(message.from_user.id) + text)
         try:
-            bot.send_message(message.from_user.id, 'Привет 😛')
+            bot.send_message(message.from_user.id, 'Привет 😛' + new_text)
         except:
             tempor = 0
     else:
@@ -168,9 +192,10 @@ def get_new_member(message):
             lastname = ''
         chat_user = firstname + ' ' + lastname
 
-    if message.new_chat_member is not None and message.new_chat_member.username == 'korovan_time_bot':
-        bot.send_message(idChatDevelopment,
-                         chat_user + user_id + ': Добавил бота в чат: ' + title + chat_id + ')')
+    if message.new_chat_member:
+        if message.new_chat_member.username == 'korovan_time_bot':
+            bot.send_message(idChatDevelopment,
+                             chat_user + user_id + ': Добавил бота в чат: ' + title + chat_id + ')')
 
 
 @bot.message_handler(func=lambda message: message.text)
@@ -228,6 +253,12 @@ def repeat_all_messages(message):
                         bot.send_message(message.chat.id, text, reply_to_message_id=message.message_id)
                     except:
                         temp = 0
+    elif message.reply_to_message and message.chat.id < 0:
+        if message.text.lower() == 'пин' and message.from_user.id == idMe:
+            try:
+                bot.pin_chat_message(message.chat.id, message.reply_to_message.message_id)
+            except:
+                bot.send_message(message.chat.id, 'Не получается пинить')
 
 
 def updater():
@@ -244,9 +275,9 @@ def updater():
             if togoogle:
                 temp_google = togoogle
                 togoogle = []
-            g_token(4, 'main')
-            g_names = sheet4.col_values(1)
-            g_ids = sheet4.col_values(2)
+            g_token(2, 'main')
+            g_names = sheet2.col_values(1)
+            g_ids = sheet2.col_values(2)
             temp_array = []
             for e in g_names:
                 if g_names.index(e) > 0:
@@ -255,14 +286,11 @@ def updater():
                 main = []
                 for i in temp_array:
                     try:
-                        g_token(4, i)
+                        g_token(2, i)
+                        google = sheet2.col_values(1)
                     except:
-                        creds4 = ServiceAccountCredentials.from_json_keyfile_name('person4.json', scope)
-                        client4 = gspread.authorize(creds4)
-                        spreadsheet = client4.open('Time-mashine')
-                        spreadsheet.add_worksheet(title=i, rows='1000', cols='50')
-                        g_token(4, i)
-                    google = sheet4.col_values(1)
+                        g_token(5, i)
+                        google = sheet5.col_values(1)
                     main.append(google)
                     count = count + 1
             if temp_google:
@@ -273,24 +301,36 @@ def updater():
                     if main[g_names.index(splited1[0]) - 1]:
                         last = main[g_names.index(splited1[0]) - 1][len(main[g_names.index(splited1[0]) - 1]) - 1].split('#')
                         if int(splited2[1]) < int(last[1]):
-                            g_token(1, splited1[0])
-                            sheet1.insert_row([splited1[1]], len(main[g_names.index(splited1[0]) - 1]) + check)
+                            try:
+                                g_token(3, splited1[0])
+                                sheet3.insert_row([splited1[1]], len(main[g_names.index(splited1[0]) - 1]) + check)
+                            except:
+                                g_token(4, splited1[0])
+                                sheet4.insert_row([splited1[1]], len(main[g_names.index(splited1[0]) - 1]) + check)
                             count = count + 1
                             main[g_names.index(splited1[0]) - 1].insert(len(main[g_names.index(splited1[0]) - 1]), splited1[1])
                         else:
                             for z in main[g_names.index(splited1[0]) - 1]:
                                 splited3 = z.split('#')
                                 if int(splited2[1]) > int(splited3[1]):
-                                    g_token(1, splited1[0])
-                                    sheet1.insert_row([splited1[1]], main[g_names.index(splited1[0]) - 1].index(z) + check)
+                                    try:
+                                        g_token(3, splited1[0])
+                                        sheet3.insert_row([splited1[1]], main[g_names.index(splited1[0]) - 1].index(z) + check)
+                                    except:
+                                        g_token(4, splited1[0])
+                                        sheet4.insert_row([splited1[1]], main[g_names.index(splited1[0]) - 1].index(z) + check)
                                     check = check + 1
                                     count = count + 1
                                     main[g_names.index(
                                         splited1[0]) - 1].insert(main[g_names.index(splited1[0]) - 1].index(z), splited1[1])
                                     break
                     else:
-                        g_token(1, splited1[0])
-                        sheet1.insert_row([splited1[1]], check)
+                        try:
+                            g_token(3, splited1[0])
+                            sheet3.insert_row([splited1[1]], check)
+                        except:
+                            g_token(4, splited1[0])
+                            sheet4.insert_row([splited1[1]], check)
                         count = count + 1
                         main[g_names.index(splited1[0]) - 1].insert(0, splited1[1])
 
